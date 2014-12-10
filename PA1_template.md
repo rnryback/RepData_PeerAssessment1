@@ -7,7 +7,8 @@ output:
 <!-- rmarkdown v1 -->
 
 ## Preparing and loading the data
-```{r Unzip and read file,echo=TRUE}
+
+```r
 if(!file.exists('activity.csv')){
 unzip(zipfile="activity.zip", overwrite=T)
 }
@@ -16,17 +17,35 @@ dat <- read.csv("activity.csv")
 Now we have the data ready to work with
 
 ## Which is the mean total number of steps taken per day?
-```{r Code for calculating the mean and median,echo=TRUE}
+
+```r
 library(ggplot2)
 total.steps <- tapply(dat$steps, dat$date, FUN=sum, na.rm=T)
 hist(total.steps, xlab="steps taken daily",col="coral")
+```
+
+![plot of chunk Code for calculating the mean and median](figure/Code for calculating the mean and median-1.png) 
+
+```r
 mean(total.steps, na.rm=TRUE)
+```
+
+```
+## [1] 9354.23
+```
+
+```r
 median(total.steps, na.rm=TRUE)
+```
+
+```
+## [1] 10395
 ```
 The requested values are shown above
 
 ## What is the average daily activity pattern?
-```{r Code to plot the activity pattern, echo=TRUE}
+
+```r
 library(ggplot2)
 averages <- aggregate(x=list(steps=dat$steps), by=list(interval=dat$interval),
                       FUN=mean, na.rm=TRUE)
@@ -35,13 +54,25 @@ ggplot(dat=averages, aes(x=interval, y=steps)) +
     xlab("5-minute interval") +
     ylab("average number of steps taken")
 ```
+
+![plot of chunk Code to plot the activity pattern](figure/Code to plot the activity pattern-1.png) 
 Here is the resulting plot
 
 ## Imputing missing values
-```{r Code to retrieve NA´s, echo=TRUE}
+
+```r
 missing <- is.na(dat$steps)
 # Use the table function to show how many missing
 table(missing)
+```
+
+```
+## missing
+## FALSE  TRUE 
+## 15264  2304
+```
+
+```r
 # Replace each missing value with the mean value of its 5-minute interval
 fill.value <- function(steps, interval) {
     filled <- NA
@@ -55,13 +86,30 @@ filled.data <- dat
 filled.data$steps <- mapply(fill.value, filled.data$steps, filled.data$interval)
 total.steps <- tapply(filled.data$steps, filled.data$date, FUN=sum)
 qplot(total.steps, binwidth=1000, xlab="steps taken daily")
+```
+
+![plot of chunk Code to retrieve NA´s](figure/Code to retrieve NA´s-1.png) 
+
+```r
 mean(total.steps)
+```
+
+```
+## [1] 10766.19
+```
+
+```r
 median(total.steps)
+```
+
+```
+## [1] 10766.19
 ```
 Here is how the numbers change
 
 ## Are there differences in activity patterns between weekdays and weekends?
-```{r Difference between weekday and weekend, echo=TRUE}
+
+```r
 library("lattice")
 weekend_log <- grepl("^[Ss]", weekdays(as.Date(filled.data$date)))
 
@@ -90,4 +138,6 @@ xyplot(avg_steps ~ as.numeric(interval) | as.factor(weekday_weekend), data = mea
     type = "l", layout = c(1, 2), col = c("red"), main = "Average Number of Steps by Time Interval", 
     xlab = "Five-minute time period", ylab = "Average number of steps")
 ```
+
+![plot of chunk Difference between weekday and weekend](figure/Difference between weekday and weekend-1.png) 
 Final plot
